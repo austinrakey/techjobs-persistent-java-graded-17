@@ -55,6 +55,9 @@ public class HomeController {
                                     @RequestParam int employerId,
                                     @RequestParam List<Integer> skills) {
 
+        List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
+        newJob.setSkills(skillObjs);
+
         if (errors.hasErrors()) {
             model.addAttribute("title", "Add Job");
             model.addAttribute("employers", employerRepository.findAll());
@@ -62,21 +65,43 @@ public class HomeController {
             return "add";
         }
 
-        Optional<Employer> employerOptional = employerRepository.findById(employerId);
-        if (!employerOptional.isPresent()) {
+        Optional<Employer> optEmployer = employerRepository.findById(employerId);
+        if (optEmployer.isPresent()) {
+            Employer employer = optEmployer.get();
+            newJob.setEmployer(employer);
+        } else {
             model.addAttribute("title", "Add Job");
+            model.addAttribute("employers", employerRepository.findAll());
+            model.addAttribute("skills", skillRepository.findAll());
             return "add";
         }
-        Employer employer = employerOptional.get();
-
-        List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
-
-        newJob.setEmployer(employer);
-        newJob.setSkills(skillObjs);
 
         jobRepository.save(newJob);
 
-        return "redirect:/";
+        return "redirect:";
+
+//        if (errors.hasErrors()) {
+//            model.addAttribute("title", "Add Job");
+//            model.addAttribute("employers", employerRepository.findAll());
+//            model.addAttribute("skills", skillRepository.findAll());
+//            return "add";
+//        }
+//
+//        Optional<Employer> employerOptional = employerRepository.findById(employerId);
+//        if (!employerOptional.isPresent()) {
+//            model.addAttribute("title", "Add Job");
+//            return "add";
+//        }
+//        Employer employer = employerOptional.get();
+//
+//        List<Skill> skillObjs = (List<Skill>) skillRepository.findAllById(skills);
+//
+//        newJob.setEmployer(employer);
+//        newJob.setSkills(skillObjs);
+//
+//        jobRepository.save(newJob);
+//
+//        return "redirect:/";
     }
 
     @GetMapping("view/{jobId}")
